@@ -1,0 +1,5 @@
+.loader, .select.is-loading::after{
+	animation: spinAround .9s infinite linear;
+	height: 3em;
+	width: 3em;
+}
