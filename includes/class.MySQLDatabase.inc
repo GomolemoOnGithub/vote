@@ -13,8 +13,8 @@
 		/*connection instance*/
 		private $_connection;
 		//store the single instance.
-		private static $_instance;
-		private static $_instancePDO;
+		private static mysqli $_instance;
+		private static PDO $_instancePDO;
 
 		/*
 		*Constructor
@@ -27,13 +27,20 @@
 			}
 		}
 
-
-		/*magic method to prevent clonning*/
+	
+		/**
+		 * __clone
+		 *
+		 * @return void
+		 */
 		private function __clone(){} 
 
-		/*
-		*Get an Instance of the database
-		*/
+	
+		/**
+		 * getInstance
+		 *
+		 * @return mysqli
+		 */
 		public static function getInstance(){
 			if(!self::$_instance){ 
 				self::$_instance = new self();
@@ -41,30 +48,38 @@
 			
 			return self::$_instance;
 		}
-
-		/*
-		*Get a PDO Instance of the database
-		*/
-		public static function PDOInstance(){
+		
+		/**
+		 * PDOInstance
+		 *
+		 * @return PDO
+		 */
+		public function getPDO(){
 			if(!self::$_instancePDO){ 
 				$dsn = 'mysql:host=localhost;dbname=vote';
 				self::$_instancePDO = new PDO($dsn,'root', '');
 			}		
-			//return PDO instance
 			return self::$_instancePDO;
 		}
-
-		/*
-		* Get connection
-		*/
+		
+		/**
+		 * getConnection
+		 *
+		 * @return string
+		 */
 		public function getConnection(){
 			return $this->_connection;
 		}
-
-		//2. Perforn database query
-		public function query($sql){
+			
+		/**
+		 * query
+		 *
+		 * @param  mixed $sql
+		 * @return array
+		 */
+		public function  query($sql){
 			$result = mysqli_query($this->_connection, $sql);
-			return $result;
+			return (array) $result;
 		}
 
 		//3. Performe database objrct query
@@ -79,11 +94,11 @@
 		}
 
 		/*4. close connection*/
-		public static function closeConnection(){
+		public function closeConnection(){
 			if(isset($_connection)){
 				mysqli_close($_connection);
 				unset ($_connection);
-				uset ($_instance);
+				unset ($_instance);
 			}
 		}
 
@@ -106,15 +121,15 @@
 			return mysqli_fetch_array($resultSet);
 		}
 
-		public static function num_rows($resultSet){
+		public function num_rows($resultSet){
 			//how many rows were affected by the last ran
 			return mysqli_num_rows($resultSet);
 		}
 
-		public static function count_all($table){
+		public function count_all($table){
 			
-			$result = self::query("SELECT COUNT(*) FROM " . $table);
-			$row = self::fetch_array($result);
+			$result = $this->query("SELECT COUNT(*) FROM " . $table);
+			$row 	= $this->fetch_array($result);
 			return array_shift($result);
 		}
 

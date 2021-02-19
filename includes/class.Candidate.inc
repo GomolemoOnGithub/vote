@@ -10,9 +10,14 @@
 	public $surname;
 	public $url;
 	public $added_on;
-
-	public static function getCandidates(){
-	    $all = static::select_all();
+	
+	/**
+	 * getCandidates
+	 *
+	 * @return string
+	 */
+	public function getCandidates() : string{
+	    $all = $this->select_all();
 		//1. Priming variable
 		$output = "";
 		$count = 1;

@@ -1,13 +1,23 @@
-<?php 
+<?php
 
-class Sql
+/**
+ * Sql
+ */
+class Sql extends MySQLDatabase
 {
-	// Common Database Methods
-	public static function select_all(){
-		try{
-		    $db = MySQLDatabase::PDOInstance();		
+	
+	/**
+	 * select_all
+	 *
+	 * @param  mixed $table
+	 * @return array
+	 */
+	public function select_all() : array
+	{
+		try {
+			$db = $this->getPDO();
 			//SQL query
-			$sql = "SELECT * FROM ". static::TABLENAME ;	
+			$sql = "SELECT * FROM " . $this->table;
 			// prepare
 			$result = $db->query($sql);
 			// Fetch Object instance
@@ -15,16 +25,23 @@ class Sql
 
 			// Return Instance
 			return $object;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
+	
+	/**
+	 * select
+	 *
+	 * @param  mixed $sql
+	 * @return array
+	 */
+	public function select($sql = '') : array
+	{
 
-	public static function select($sql=''){
-
-		try{
+		try {
 			//instanciate PDO
-		    $db = MySQLDatabase::PDOInstance();			
+			$db = $this->getPDO();
 			// prepare
 			$stmt = $db->prepare($sql);
 
@@ -36,14 +53,21 @@ class Sql
 
 			// Return Instance
 			return $result;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
-
-	public static function selectAssoc($sql=''){
-		try{
-		    $db = MySQLDatabase::PDOInstance();			
+	
+	/**
+	 * selectAssoc
+	 *
+	 * @param  mixed $sql
+	 * @return array
+	 */
+	public function selectAssoc($sql = '') : array
+	{
+		try {
+			$db = $this->getPDO();
 			// prepare
 			$result = $db->query($sql);
 
@@ -52,26 +76,39 @@ class Sql
 
 			// Return Instance
 			return $assoc;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
+	
+	/**
+	 * findColumn
+	 *
+	 * @param  mixed $sql
+	 * @return array
+	 */
+	public function findColumn($sql = '') : array
+	{
+		try {
+			$db = $this->getPDO();
 
-	public function findColumn($sql=''){
-		try{	
-			$db = MySQLDatabase::PDOInstance();
-
-			$result = $db->query($sql)->fetchAll(PDO::FETCH_COLUMN,0);
+			$result = $db->query($sql)->fetchAll(PDO::FETCH_COLUMN, 0);
 
 			return $result;
-		}catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
-
-		public function find_by_username() {
-		try{	
-			$db = MySQLDatabase::PDOInstance();
+	
+	/**
+	 * find_by_username
+	 *
+	 * @return string
+	 */
+	public function find_by_username() : string
+	{
+		try {
+			$db = $this->getPDO();
 
 			// 2. Query
 			$sql = 'SELECT `password` FROM `vote`.`users` WHERE `user` = ? LIMIT 1';
@@ -100,37 +137,44 @@ class Sql
 
 			// Return Instance
 			return $hash;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
 
-	public function instanciate($stmt) {
-		try{
+	public function instanciate($stmt)
+	{
+		try {
 
-			 // 4. Instanciate the class
+			// 4. Instanciate the class
 			$_instance = new self();
-			
+
 			// Execute
 			$stmt->execute();
 
 			// 4. Instanciate the object
-			$stmt->setFetchMode(PDO::FETCH_INTO,$_instance);
+			$stmt->setFetchMode(PDO::FETCH_INTO, $_instance);
 
 			// Fetch Object instance
 			$stmt->fetch();
 
 			// 6. close Cursor
 			$stmt->closeCursor();
-
-		}catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
-	}	
-
-	public function selectOne($sql) {
-		try{	
-			$db = MySQLDatabase::PDOInstance();
+	}
+	
+	/**
+	 * selectOne
+	 *
+	 * @param  mixed $sql
+	 * @return array
+	 */
+	public function selectOne($sql) : array
+	{
+		try {
+			$db = $this->getPDO();
 
 			// prepare
 			$stmt = $db->prepare($sql);
@@ -143,75 +187,84 @@ class Sql
 
 			// Return Instance
 			return $object;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
-
-	public static function countAll(): int{
-		try{
+	
+	/**
+	 * countAll
+	 *
+	 * @return int
+	 */
+	public function countAll() : int
+	{
+		try {
 			// Database Instance
-			$db = MySQLDatabase::PDOInstance();
+			$db = $this->getPDO();
 
 			// Query sql statement
-			$result = $db->query("SELECT COUNT(*)FROM " . static::TABLENAME);
+			$result = $db->query("SELECT COUNT(*)FROM " . $this->TABLENAME);
 
 			// Get number of rows
 			$rows   = $result->fetchColumn();
 
 			return $rows;
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
 
-	protected function create($values){
+	/**
+	 * create
+	 *
+	 * @param  mixed $values
+	 * @return void
+	 */
+	protected function create($values): void
+	{
 
-		try{
-			$db = MySQLDatabase::PDOInstance();
+		try {
+			$db = $this->getPDO();
 
 			/*1. Query*/
-			$sql = "INSERT INTO ". static::TABLENAME ." (";
-			$sql .= join(", ",array_keys($values));
-			$sql .= ") VALUES ("; 
+			$sql = "INSERT INTO " . $this->TABLENAME . " (";
+			$sql .= join(", ", array_keys($values));
+			$sql .= ") VALUES (";
 			$sql .= join(",", $this->generatePlaceholders($values));
 			$sql .= ")";
 
 			/*2. Preprare*/
 			$stmt = $db->prepare($sql);
 
-			// print_r($values);
-			// echo $sql;
-
 			/*3. Execute the statement*/
-			
-
-			if($stmt->execute(array_values($values)))
-			{
-
-			    echo 1;
-			    
+			if ($stmt->execute(array_values($values))) {
+				echo 1;
+			} else {
+				echo 0;
 			}
-			else
-			{	
-			    echo 0;
-			    
-			}
-
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
 
-	protected function createMultiple($keys,$values){
+	/**
+	 * createMultiple
+	 *
+	 * @param  mixed $keys
+	 * @param  mixed $values
+	 * @return bool
+	 */
+	protected function createMultiple($keys, $values): bool
+	{
 
-		try{
-			$db = MySQLDatabase::PDOInstance();
+		try {
+			$db = $this->getPDO();
 
 			/*1. Query*/
-			$sql = "INSERT INTO ". static::TABLENAME ." (";
-			$sql .= join(", ",array_keys($keys));
-			$sql .= ") VALUES ("; 
+			$sql = "INSERT INTO " . $this->TABLENAME . " (";
+			$sql .= join(", ", array_keys($keys));
+			$sql .= ") VALUES (";
 			$sql .= join(",(", $this->generateMultiPlaceholders($values));
 			// $sql .= ")";
 
@@ -221,141 +274,150 @@ class Sql
 			// echo $sql;
 
 			/*3. Execute the statement*/
-			$stmt->execute(array_values($values)); 
-			
+			$stmt->execute(array_values($values));
+
 			// 4. Check affected rows
-			if( $stmt->rowCount() > 0 )
-
-			{
-
-			    return true;
-			    
+			if ($stmt->rowCount() > 0) {
+				return true;
+			} else {
+				return false;
 			}
-
-			else
-
-			{	
-			    return false;
-			    
-			}
-
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
 
-	protected function createMultiple2($keys,$values){
+	/**
+	 * createMultiple2
+	 *
+	 * @param  mixed $keys
+	 * @param  mixed $values
+	 * @return bool
+	 */
+	protected function createMultiple2($keys, $values): bool
+	{
 
-		try{
-			$db = MySQLDatabase::PDOInstance();
+		try {
+			$db = $this->getPDO();
 
 			/*1. Query*/
-			$sql = "INSERT INTO ". static::TABLENAME ." (";
-			$sql .= join(", ",array_keys($keys));
-			$sql .= ") VALUES ("; 
+			$sql = "INSERT INTO " . $this->TABLENAME . " (";
+			$sql .= join(", ", array_keys($keys));
+			$sql .= ") VALUES (";
 			$sql .= join(",(", $this->generateMultiPlaceholders2($values));
 			// $sql .= ")";
 
 			/*2. Preprare*/
 			$stmt = $db->prepare($sql);
 
-			// echo $sql;
-
-			// print_r(array_values($values));
-
 			/*3. Execute the statement*/
-			$stmt->execute(array_values($values)); 
-			
+			$stmt->execute(array_values($values));
+
 			// 4. Check affected rows
-			if( $stmt->rowCount() > 0 )
-
-			{
-
-			    return true;
-			    
+			if ($stmt->rowCount() > 0) {
+				return true;
+			} else {
+				return false;
 			}
-
-			else
-
-			{	
-			    return false;
-			    
-			}
-
-		} catch (Exception $e){
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 	}
 
-	private function generatePlaceholders($array){
+	/**
+	 * generatePlaceholders
+	 *
+	 * @param  mixed $array
+	 * @return void
+	 */
+	private function generatePlaceholders($array)
+	{
 		// For statement 
-		for ($i = 0; $i < count($array) ; $i++) {
+		for ($i = 0; $i < count($array); $i++) {
 			$output[] = '?';
 		}
 		return $output;
 	}
 
 
-	private function generateMultiPlaceholders($array){
+	/**
+	 * generateMultiPlaceholders
+	 *
+	 * @param  mixed $array
+	 * @return array
+	 */
+	private function generateMultiPlaceholders($array): array
+	{
 		// For statement 
-		for ($i = 0; $i < count($array) ; $i++) {
+		for ($i = 0; $i < count($array); $i++) {
 			$output[] = '?)';
 		}
 		return $output;
 	}
 
 
-	private function generateMultiPlaceholders2($array){
+	/**
+	 * generateMultiPlaceholders2
+	 *
+	 * @param  mixed $array
+	 * @return array
+	 */
+	private function generateMultiPlaceholders2($array): array
+	{
 		// For statement 
-		for ($i = 0; $i < count($array)/2 ; $i++) {
+		for ($i = 0; $i < count($array) / 2; $i++) {
 			$output[] = '?,?)';
 		}
 		return $output;
 	}
-	
-	protected function update($values){
 
-		$db = MySQLDatabase::PDOInstance();	
+	protected function update($values)
+	{
 
-		foreach($values as $key => $value){
+		$db = $this->getPDO();
+
+		foreach ($values as $key => $value) {
 			$attribute_keys_pair[] = "{$key} =  ? ";
 		}
 
-		$sql = "UPDATE ". static::TABLENAME ." SET ";
+		$sql = "UPDATE " . $this->TABLENAME . " SET ";
 		$sql .= join(", ", $attribute_keys_pair);
-		
+
 		// add id 
 		if (isset($this->id)) {
-			$values['id'] = $this->id ;
+			$values['id'] = $this->id;
 			$sql .= " WHERE id = ?";
-			
 		}
-		
-		if(isset($this->abv)){
-			$values['id'] = $this->abv ;
+
+		if (isset($this->abv)) {
+			$values['id'] = $this->abv;
 			$sql .= " WHERE abv = ?";
 		}
 
 		echo $sql;
-		$stmt = $db->prepare($sql) or die('..1..');	
+		$stmt = $db->prepare($sql) or die('..1..');
 
-		print_r($values);	
+		print_r($values);
 
 		$stmt->execute(array_values($values)) or die('..3..');
-		//confirm query
-		// return ($affected === 1) ? true : false;
 	}
 
-	public function delete(){
-		$db = MySQLDatabase::PDOInstance();
+	/**
+	 * delete
+	 *
+	 * @return bool
+	 */
+	public function delete(): bool
+	{
+		$db = $this->getPDO();
 		//DELETE from table
-		$sql = "DELETE FROM " . static::TABLENAME ;
-		$sql.= " WHERE id=" . $this->id ;
-		$sql.= " LIMIT 1";
+		$sql = "DELETE FROM " . $this->TABLENAME;
+		$sql .= " WHERE id=" . $this->id;
+		$sql .= " LIMIT 1";
 
 		// Delete all rows from the FRUIT table 
 		$affected = $db->exec($sql);
 
-		return $affected == 1 ? true : false;	
+		return $affected == 1 ? true : false;
 	}
 }
